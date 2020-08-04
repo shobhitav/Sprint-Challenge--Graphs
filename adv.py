@@ -34,6 +34,7 @@ opposite_direction = {"n":"s", "s":"n", "e":"w", "w":"e"}
 
 # load dictionary into graph
 graph = Graph()
+# key is room number , value is inner dictionary 
 for k, v in room_graph.items():
     graph.add_vertex(k)
     for k1, v1 in v[1].items():
@@ -69,6 +70,8 @@ while(graph.not_done()):
 
             # depth first traversal - break from the direction iteration of previous room, as player.current_room is set to next room
             break
+    
+    # If all the dft is complete and no '?' found then found_unexplored exits is false , then search with BFS
     if found_unexplored_exit:
         continue
     #all adjacent rooms were visited, need to perform BFS to find shortest path
@@ -80,8 +83,21 @@ while(graph.not_done()):
     # iterate over the list of (direction, room) pairs 
     for i in range(1, len(path)):
         direction = path[i][0]
+
+        curr_room = player.current_room
         player.travel(direction)
+        next_room = player.current_room
+
+        # link current room to next room in this direction
+        graph.get_neighbors(curr_room.id)[direction]=next_room.id
+
+        # link next room to current room in opposite direction
+        graph.get_neighbors(next_room.id)[opposite_direction[direction]]=curr_room.id
+
         traversal_path.append(direction)
+
+    # print(f'traverasal path is {traversal_path}')
+
 
 # TRAVERSAL TEST - DO NOT MODIFY
 visited_rooms = set()
@@ -97,7 +113,6 @@ if len(visited_rooms) == len(room_graph):
 else:
     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
     print(f"{len(room_graph) - len(visited_rooms)} unvisited rooms")
-
 
 
 #######
